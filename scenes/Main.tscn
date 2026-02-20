@@ -1,0 +1,32 @@
+[gd_scene load_steps=8 format=3 uid="uid://main_scene"]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/CameraController.gd" id="2_camera"]
+[ext_resource type="Script" path="res://scripts/PixelBackground.gd" id="3_bg"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="4_player"]
+[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/UpgradeScreen.tscn" id="6_upgrade"]
+[ext_resource type="PackedScene" path="res://scenes/GameOverScreen.tscn" id="7_gameover"]
+[ext_resource type="PackedScene" path="res://scenes/EnemySpawner.tscn" id="8_spawner"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="PixelBackground" type="Node2D" parent="."]
+script = ExtResource("3_bg")
+z_index = -10
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+script = ExtResource("2_camera")
+
+[node name="Player" parent="." instance=ExtResource("4_player")]
+position = Vector2(640, 360)
+
+[node name="EnemySpawner" parent="." instance=ExtResource("8_spawner")]
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+
+[node name="UpgradeScreen" parent="." instance=ExtResource("6_upgrade")]
+
+[node name="GameOverScreen" parent="." instance=ExtResource("7_gameover")]

@@ -1,0 +1,20 @@
+<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+  <!-- Corpo - laranja explosivo -->
+  <circle cx="24" cy="24" r="18" fill="#FF9933" stroke="#FF6600" stroke-width="2"/>
+  
+  <!-- Espinhos -->
+  <polygon points="24,6 26,14 28,6" fill="#FFAA44"/>
+  <polygon points="42,24 34,26 42,28" fill="#FFAA44"/>
+  <polygon points="24,42 26,34 28,42" fill="#FFAA44"/>
+  <polygon points="6,24 14,26 6,28" fill="#FFAA44"/>
+  <polygon points="36,12 30,18 38,16" fill="#FFAA44"/>
+  <polygon points="36,36 30,30 38,32" fill="#FFAA44"/>
+  <polygon points="12,36 18,30 10,32" fill="#FFAA44"/>
+  <polygon points="12,12 18,18 10,16" fill="#FFAA44"/>
+  
+  <!-- Olhos -->
+  <circle cx="18" cy="22" r="3" fill="#FFFFFF"/>
+  <circle cx="30" cy="22" r="3" fill="#FFFFFF"/>
+  <circle cx="18" cy="22" r="1.5" fill="#CC3300"/>
+  <circle cx="30" cy="22" r="1.5" fill="#CC3300"/>
+</svg>

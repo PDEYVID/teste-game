@@ -1,0 +1,11 @@
+<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Projétil - azul energia -->
+  <polygon points="12,2 22,12 12,22 2,12" fill="#00CCFF" stroke="#0099CC" stroke-width="1"/>
+  
+  <!-- Camadas internas -->
+  <polygon points="12,6 18,12 12,18 6,12" fill="#66DDFF" opacity="0.8"/>
+  <polygon points="12,8 16,12 12,16 8,12" fill="#FFFFFF" opacity="0.7"/>
+  
+  <!-- Trilha de energia -->
+  <circle cx="12" cy="12" r="3" fill="#FFFFFF" opacity="0.9"/>
+</svg>

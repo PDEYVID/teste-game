@@ -1,0 +1,16 @@
+<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Projétil - amarelo brilhante -->
+  <circle cx="12" cy="12" r="10" fill="#FFFF00" stroke="#FFCC00" stroke-width="1"/>
+  
+  <!-- Brilho interno -->
+  <circle cx="12" cy="12" r="7" fill="#FFFF99" opacity="0.8"/>
+  
+  <!-- Núcleo -->
+  <circle cx="12" cy="12" r="4" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Raios de luz -->
+  <line x1="12" y1="2" x2="12" y2="6" stroke="#FFFFFF" stroke-width="2" opacity="0.7"/>
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#FFFFFF" stroke-width="2" opacity="0.7"/>
+  <line x1="2" y1="12" x2="6" y2="12" stroke="#FFFFFF" stroke-width="2" opacity="0.7"/>
+  <line x1="18" y1="12" x2="22" y2="12" stroke="#FFFFFF" stroke-width="2" opacity="0.7"/>
+</svg>

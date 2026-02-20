@@ -1,0 +1,16 @@
+<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Projétil - fogo -->
+  <ellipse cx="12" cy="14" rx="8" ry="10" fill="#FF6600" stroke="#CC3300" stroke-width="1"/>
+  
+  <!-- Chamas internas -->
+  <ellipse cx="12" cy="14" rx="6" ry="8" fill="#FF9933" opacity="0.8"/>
+  <ellipse cx="12" cy="14" rx="4" ry="6" fill="#FFCC00" opacity="0.9"/>
+  
+  <!-- Núcleo branco quente -->
+  <ellipse cx="12" cy="14" rx="2" ry="3" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Faíscas -->
+  <circle cx="8" cy="8" r="1.5" fill="#FFFF00" opacity="0.8"/>
+  <circle cx="16" cy="10" r="1.5" fill="#FFFF00" opacity="0.8"/>
+  <circle cx="12" cy="6" r="1" fill="#FFFFFF" opacity="0.9"/>
+</svg>

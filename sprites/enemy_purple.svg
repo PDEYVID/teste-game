@@ -1,0 +1,17 @@
+<svg width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+  <!-- Corpo - roxo místico -->
+  <circle cx="24" cy="24" r="18" fill="#9933FF" stroke="#6600CC" stroke-width="2"/>
+  
+  <!-- Camadas internas -->
+  <circle cx="24" cy="24" r="14" fill="#BB66FF" opacity="0.5"/>
+  <circle cx="24" cy="24" r="10" fill="#DD99FF" opacity="0.4"/>
+  
+  <!-- Olhos -->
+  <ellipse cx="18" cy="22" rx="3" ry="5" fill="#00FFFF"/>
+  <ellipse cx="30" cy="22" rx="3" ry="5" fill="#00FFFF"/>
+  <circle cx="18" cy="22" r="1.5" fill="#000000"/>
+  <circle cx="30" cy="22" r="1.5" fill="#000000"/>
+  
+  <!-- Aura -->
+  <circle cx="24" cy="24" r="20" fill="none" stroke="#CC99FF" stroke-width="1" opacity="0.6"/>
+</svg>
