@@ -8,6 +8,10 @@ var damage: int = 10
 var xp_reward: int = 20
 var contact_damage_cooldown: float = 0.5 # Reduzi um pouco para sentir mais impacto
 var contact_timer: float = 0.0
+var enemy_kind: String = "normal"
+
+var _special_timer: float = 0.0
+var _berserk_timer: float = 0.0
 
 var _bob_time: float = 0.0
 var _base_y: float = 0.0
@@ -33,12 +37,17 @@ func _ready() -> void:
 	_bob_time = randf() * TAU
 	_update_hp_bar()
 
-func setup(hp: int, spd: float, dmg: int, xp: int) -> void:
+func setup(hp: int, spd: float, dmg: int, xp: int, kind: String = "normal") -> void:
 	max_hp = hp
 	current_hp = hp
 	speed = spd
 	damage = dmg
 	xp_reward = xp
+	enemy_kind = kind
+	if enemy_kind == "elite":
+		_special_timer = 2.2
+	if enemy_kind == "warlock":
+		_special_timer = 1.8
 	_update_hp_bar()
 
 func _physics_process(delta: float) -> void:
@@ -49,6 +58,7 @@ func _physics_process(delta: float) -> void:
 	_move_towards_player(delta)
 	_handle_bob_animation(delta)
 	_handle_contact_damage(delta)
+	_handle_special_skill(delta)
 
 func _move_towards_player(_delta: float) -> void:
 	var direction: Vector2 = global_position.direction_to(player.global_position)
@@ -71,7 +81,7 @@ func _handle_contact_damage(delta: float) -> void:
 		return
 	
 	# Usando a colisão do move_and_slide é mais eficiente que checar distância toda vez
-	for i in get_slide_collision_count():
+	for i in range(get_slide_collision_count()):
 		var collision = get_slide_collision(i)
 		var collider = collision.get_collider()
 		
@@ -82,6 +92,29 @@ func _handle_contact_damage(delta: float) -> void:
 				# Knockback leve no inimigo ao bater
 				velocity = -velocity * 0.5 
 				break
+
+func _handle_special_skill(delta: float) -> void:
+	if enemy_kind == "elite":
+		_special_timer -= delta
+		if _special_timer <= 0.0:
+			_berserk_timer = 1.0
+			_special_timer = 3.2
+			sprite.modulate = Color(1.5, 0.45, 0.45)
+		if _berserk_timer > 0.0:
+			_berserk_timer -= delta
+			velocity *= 1.6
+			if _berserk_timer <= 0.0:
+				sprite.modulate = Color.WHITE
+	elif enemy_kind == "warlock":
+		_special_timer -= delta
+		if _special_timer <= 0.0 and player and is_instance_valid(player):
+			if global_position.distance_to(player.global_position) <= 360.0 and player.has_method("take_damage"):
+				player.take_damage(max(1, int(damage * 0.7)))
+				PixelEffects.spawn_damage_number(player.global_position + Vector2(0, -46), int(damage * 0.7), true)
+				sprite.modulate = Color(0.5, 1.3, 1.5)
+				var flash_tween = create_tween()
+				flash_tween.tween_property(sprite, "modulate", Color.WHITE, 0.25)
+			_special_timer = 2.4
 
 func take_damage(amount: int, is_crit: bool = false) -> void:
 	current_hp -= amount

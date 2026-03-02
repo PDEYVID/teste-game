@@ -1,17 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://gameover_scene"]
+[gd_scene format=3 uid="uid://by7lgv35nkh58"]
 
-[ext_resource type="Script" path="res://scripts/GameOverScreen.gd" id="1_gameover"]
+[ext_resource type="Script" uid="uid://djrcyc4mknnas" path="res://scripts/GameOverScreen.gd" id="1_gameover"]
 
-[node name="GameOverScreen" type="CanvasLayer"]
+[node name="GameOverScreen" type="CanvasLayer" unique_id=1578334626]
 script = ExtResource("1_gameover")
 
-[node name="Dimmer" type="ColorRect" parent="."]
+[node name="Dimmer" type="ColorRect" parent="." unique_id=359515032]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.85)
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="Panel" type="PanelContainer" parent="." unique_id=399718172]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -22,26 +22,27 @@ offset_top = -160.0
 offset_right = 200.0
 offset_bottom = 160.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1623585946]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 20
+alignment = 1
 
-[node name="GameOverLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="GameOverLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1716503941]
+modulate = Color(1, 0.2, 0.2, 1)
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 text = "💀 GAME OVER"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 32
-modulate = Color(1, 0.2, 0.2, 1)
 
-[node name="TimeLabel" type="Label" parent="Panel/VBoxContainer"]
+[node name="TimeLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1016015095]
 layout_mode = 2
-text = "Você sobreviveu por:\n00:00"
-horizontal_alignment = 1
 theme_override_font_sizes/font_size = 18
+text = "Você sobreviveu por:
+00:00"
+horizontal_alignment = 1
 
-[node name="RestartButton" type="Button" parent="Panel/VBoxContainer"]
-layout_mode = 2
+[node name="RestartButton" type="Button" parent="Panel/VBoxContainer" unique_id=169114487]
 custom_minimum_size = Vector2(180, 50)
-text = "🔄 JOGAR NOVAMENTE"
+layout_mode = 2
 theme_override_font_sizes/font_size = 16
+text = "🔄 JOGAR NOVAMENTE"

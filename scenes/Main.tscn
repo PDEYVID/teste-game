@@ -1,32 +1,40 @@
-[gd_scene load_steps=8 format=3 uid="uid://main_scene"]
+[gd_scene format=3 uid="uid://bfva40wm43sjc"]
 
-[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
-[ext_resource type="Script" path="res://scripts/CameraController.gd" id="2_camera"]
-[ext_resource type="Script" path="res://scripts/PixelBackground.gd" id="3_bg"]
-[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="4_player"]
-[ext_resource type="PackedScene" path="res://scenes/HUD.tscn" id="5_hud"]
-[ext_resource type="PackedScene" path="res://scenes/UpgradeScreen.tscn" id="6_upgrade"]
-[ext_resource type="PackedScene" path="res://scenes/GameOverScreen.tscn" id="7_gameover"]
-[ext_resource type="PackedScene" path="res://scenes/EnemySpawner.tscn" id="8_spawner"]
+[ext_resource type="Script" uid="uid://cuwetqjoywip4" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://bw20tq2c2cw73" path="res://scripts/CameraController.gd" id="2_camera"]
+[ext_resource type="Script" uid="uid://bsgrulctq6sae" path="res://scripts/PixelBackground.gd" id="3_bg"]
+[ext_resource type="PackedScene" uid="uid://brs6gugudmjfq" path="res://scenes/Player.tscn" id="4_player"]
+[ext_resource type="PackedScene" uid="uid://bfq8stwiu2ot7" path="res://scenes/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" uid="uid://b4pbg7dlqig41" path="res://scenes/UpgradeScreen.tscn" id="6_upgrade"]
+[ext_resource type="PackedScene" uid="uid://by7lgv35nkh58" path="res://scenes/GameOverScreen.tscn" id="7_gameover"]
+[ext_resource type="PackedScene" uid="uid://co718vnjftmbp" path="res://scenes/EnemySpawner.tscn" id="8_spawner"]
+[ext_resource type="Script" uid="uid://g26xn5myuwrl" path="res://scripts/NotificationSystem.gd" id="9_notify"]
+[ext_resource type="Script" uid="uid://bbu4txp1ecl4f" path="res://scripts/ScreenEffects.gd" id="10_fx"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=25584340]
 script = ExtResource("1_main")
 
-[node name="PixelBackground" type="Node2D" parent="."]
-script = ExtResource("3_bg")
+[node name="PixelBackground" type="Node2D" parent="." unique_id=1257265983]
 z_index = -10
+script = ExtResource("3_bg")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1489198044]
 position = Vector2(640, 360)
 script = ExtResource("2_camera")
 
-[node name="Player" parent="." instance=ExtResource("4_player")]
+[node name="Player" parent="." unique_id=682193808 instance=ExtResource("4_player")]
 position = Vector2(640, 360)
 
-[node name="EnemySpawner" parent="." instance=ExtResource("8_spawner")]
+[node name="EnemySpawner" parent="." unique_id=1896158136 instance=ExtResource("8_spawner")]
 
-[node name="HUD" parent="." instance=ExtResource("5_hud")]
+[node name="HUD" parent="." unique_id=1852778113 instance=ExtResource("5_hud")]
 
-[node name="UpgradeScreen" parent="." instance=ExtResource("6_upgrade")]
+[node name="UpgradeScreen" parent="." unique_id=766888214 instance=ExtResource("6_upgrade")]
 
-[node name="GameOverScreen" parent="." instance=ExtResource("7_gameover")]
+[node name="GameOverScreen" parent="." unique_id=2095472786 instance=ExtResource("7_gameover")]
+
+[node name="NotificationSystem" type="CanvasLayer" parent="." unique_id=916903591]
+script = ExtResource("9_notify")
+
+[node name="ScreenEffects" type="CanvasLayer" parent="." unique_id=1827233201]
+script = ExtResource("10_fx")

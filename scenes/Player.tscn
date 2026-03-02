@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://player_scene"]
+[gd_scene format=3 uid="uid://brs6gugudmjfq"]
 
-[ext_resource type="Script" path="res://scripts/Player.gd" id="1_player"]
-[ext_resource type="Script" path="res://scripts/WeaponSystem.gd" id="2_weapon"]
+[ext_resource type="Script" uid="uid://cd5pf5s8eqoxo" path="res://scripts/Player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://bcus53c4vsk3v" path="res://scripts/WeaponSystem.gd" id="2_weapon"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 14.0
@@ -10,37 +10,35 @@ height = 28.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
 radius = 120.0
 
-[node name="Player" type="CharacterBody2D"]
-collision_layer = 1
+[node name="Player" type="CharacterBody2D" unique_id=936242097]
 collision_mask = 2
 script = ExtResource("1_player")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1370870143]
 shape = SubResource("CapsuleShape2D_1")
 
-[node name="Shadow" type="ColorRect" parent="."]
+[node name="Shadow" type="ColorRect" parent="." unique_id=1251128804]
+modulate = Color(1, 1, 1, 0.5)
 offset_left = -14.0
 offset_top = 14.0
 offset_right = 14.0
 offset_bottom = 20.0
 color = Color(0, 0, 0, 0.35)
-modulate = Color(1, 1, 1, 0.5)
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, -4)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=945011535]
 texture_filter = 1
+position = Vector2(0, -4)
 
-[node name="WeaponSystem" type="Node2D" parent="."]
+[node name="WeaponSystem" type="Node2D" parent="." unique_id=110699720]
 script = ExtResource("2_weapon")
 
-[node name="AttackTimer" type="Timer" parent="WeaponSystem"]
+[node name="AttackTimer" type="Timer" parent="WeaponSystem" unique_id=276875575]
 wait_time = 1.5
 autostart = true
 
-[node name="AttackArea" type="Area2D" parent="WeaponSystem"]
+[node name="AttackArea" type="Area2D" parent="WeaponSystem" unique_id=452289257]
 collision_layer = 0
 collision_mask = 2
-monitoring = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponSystem/AttackArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WeaponSystem/AttackArea" unique_id=1535632830]
 shape = SubResource("CircleShape2D_attack")

@@ -75,6 +75,7 @@ func _spawn_enemy() -> void:
 	var spd: float
 	var dmg: int
 	var xp: int
+	var enemy_kind: String = enemy_type
 	
 	match enemy_type:
 		"fast":
@@ -102,6 +103,29 @@ func _spawn_enemy() -> void:
 			enemy.sprite.texture = SpriteGenerator.get_enemy_boss_texture()
 			enemy.hp_bar_fill.color = Color(0.8, 0.3, 0.9)
 			enemy.sprite.scale *= 1.5  # Boss é maior
+			if AudioManager:
+				AudioManager.play_boss_spawn()
+			var notifications = get_tree().get_first_node_in_group("notifications")
+			if notifications and notifications.has_method("notify_boss_spawn"):
+				notifications.notify_boss_spawn()
+		"elite":
+			hp = int(120 * difficulty_mult)
+			spd = 95.0 + (time / 60.0) * 12.0
+			dmg = int(22 * difficulty_mult)
+			xp = int(55 * difficulty_mult)
+			enemy.sprite.texture = SpriteGenerator.get_enemy_tank_texture()
+			enemy.hp_bar_fill.color = Color(1.0, 0.2, 0.2)
+			enemy.sprite.scale *= 1.18
+			enemy_kind = "elite"
+		"warlock":
+			hp = int(90 * difficulty_mult)
+			spd = 75.0 + (time / 60.0) * 9.0
+			dmg = int(18 * difficulty_mult)
+			xp = int(60 * difficulty_mult)
+			enemy.sprite.texture = SpriteGenerator.get_enemy_boss_texture()
+			enemy.hp_bar_fill.color = Color(0.45, 0.85, 1.0)
+			enemy.sprite.scale *= 0.92
+			enemy_kind = "warlock"
 		_:  # "normal"
 			# Inimigo padrão
 			hp = int(30 * difficulty_mult)
@@ -109,7 +133,7 @@ func _spawn_enemy() -> void:
 			dmg = int(10 * difficulty_mult)
 			xp = int(20 * difficulty_mult)
 	
-	enemy.setup(hp, spd, dmg, xp)
+	enemy.setup(hp, spd, dmg, xp, enemy_kind)
 
 func _get_random_enemy_type(time: float) -> String:
 	"""Determina tipo de inimigo baseado em probabilidade e tempo."""
@@ -122,6 +146,10 @@ func _get_random_enemy_type(time: float) -> String:
 	# Após 1 minuto, começa a spawnar variações
 	if time < 60:
 		return "normal"
+	if time > 90 and rand < 0.12:
+		return "elite"
+	if time > 130 and rand > 0.88:
+		return "warlock"
 	
 	# Probabilidades ajustadas com o tempo
 	if rand < 0.25:

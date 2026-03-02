@@ -23,18 +23,27 @@ func _update_timer() -> void:
 func _on_attack_timer_timeout() -> void:
 	"""Chamado pelo timer: dispara ataques."""
 	var enemies: Array = _get_enemies_in_range()
-	if enemies.is_empty():
+	var radial_shot_count: int = int(GameManager.player_stats.get("radial_shot_count", 0))
+	if enemies.is_empty() and radial_shot_count <= 0:
 		return
 	
 	var projectile_count: int = GameManager.player_stats["projectile_count"]
 	
 	# Ordena inimigos por distância e atira nos mais próximos
-	enemies.sort_custom(func(a, b): 
-		return global_position.distance_to(a.global_position) < global_position.distance_to(b.global_position)
-	)
-	
-	for i in range(min(projectile_count, enemies.size())):
-		_fire_at(enemies[i])
+	if not enemies.is_empty():
+		enemies.sort_custom(func(a, b): 
+			return global_position.distance_to(a.global_position) < global_position.distance_to(b.global_position)
+		)
+
+		for i in range(min(projectile_count, enemies.size())):
+			_fire_at(enemies[i])
+
+	if radial_shot_count > 0:
+		_fire_radial(radial_shot_count)
+
+	var quantum_brain: int = int(GameManager.player_stats.get("quantum_brain", 0))
+	if quantum_brain > 0 and not enemies.is_empty():
+		_fire_quantum_spread(enemies[0], quantum_brain)
 
 func _get_enemies_in_range() -> Array:
 	"""Retorna todos os inimigos dentro do raio de ataque."""
@@ -51,13 +60,39 @@ func _get_enemies_in_range() -> Array:
 
 func _fire_at(target: Node2D) -> void:
 	"""Instancia um projétil apontado para o alvo."""
+	if AudioManager:
+		AudioManager.play_shoot()
+	var base_direction: Vector2 = (target.global_position - global_position).normalized()
+	_spawn_projectile(base_direction)
+
+	var chaos_chance: float = float(GameManager.player_stats.get("chaos_shot_chance", 0.0))
+	if chaos_chance > 0.0 and randf() < chaos_chance:
+		for i in range(2):
+			var random_dir := base_direction.rotated(randf_range(-0.8, 0.8)).normalized()
+			_spawn_projectile(random_dir)
+
+func _spawn_projectile(direction: Vector2) -> void:
 	var projectile = PROJECTILE_SCENE.instantiate()
 	# Adiciona à cena principal para não herdar transformação do player
 	get_tree().current_scene.add_child(projectile)
 	projectile.global_position = global_position
-	
-	var direction: Vector2 = (target.global_position - global_position).normalized()
 	projectile.setup(direction, GameManager.player_stats["damage"])
+
+func _fire_radial(count: int) -> void:
+	if count <= 0:
+		return
+	for i in range(count):
+		var angle := (TAU / float(count)) * float(i)
+		var direction := Vector2(cos(angle), sin(angle))
+		_spawn_projectile(direction)
+
+func _fire_quantum_spread(target: Node2D, power: int) -> void:
+	var base_direction: Vector2 = (target.global_position - global_position).normalized()
+	var count: int = 1 + power
+	for i in range(count):
+		var angle_offset: float = randf_range(-1.1, 1.1) * (0.5 + power * 0.12)
+		var quantum_dir := base_direction.rotated(angle_offset).normalized()
+		_spawn_projectile(quantum_dir)
 
 func update_cooldown() -> void:
 	"""Chamado após upgrades para atualizar o intervalo de ataque."""

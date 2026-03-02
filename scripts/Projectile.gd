@@ -8,6 +8,7 @@ var speed: float = 400.0
 var damage: float = 20.0
 var lifetime: float = 2.0
 var is_crit: bool = false
+var remaining_pierce: int = 0
 
 @onready var sprite: Sprite2D = $Sprite2D
 
@@ -33,6 +34,8 @@ func setup(dir: Vector2, dmg: float) -> void:
 	var damage_result = GameManager.calculate_damage(dmg)
 	damage = damage_result["damage"]
 	is_crit = damage_result["is_crit"]
+	speed = 400.0 * float(GameManager.player_stats.get("projectile_speed_mult", 1.0))
+	remaining_pierce = int(GameManager.player_stats.get("pierce_count", 0))
 	
 	# Visual diferente para crítico
 	if is_crit:
@@ -49,9 +52,30 @@ func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("enemies"):
 		if body.has_method("take_damage"):
 			body.take_damage(int(damage), is_crit)
+			if AudioManager:
+				AudioManager.play_enemy_hit(is_crit)
+			if is_crit:
+				_apply_crit_explosion(body.global_position)
 			# Aplica lifesteal
 			GameManager.apply_lifesteal(damage)
+		if remaining_pierce > 0:
+			remaining_pierce -= 1
+			sprite.modulate = Color(1.2, 1.2, 1.5, 0.9)
+			return
 		_destroy_with_effect()
+
+func _apply_crit_explosion(center: Vector2) -> void:
+	var radius: float = float(GameManager.player_stats.get("crit_explosion_radius", 0.0))
+	if radius <= 0.0:
+		return
+
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy):
+			continue
+		if enemy.global_position.distance_to(center) > radius:
+			continue
+		if enemy.has_method("take_damage"):
+			enemy.take_damage(int(damage * 0.45), false)
 
 func _destroy_with_effect() -> void:
 	"""Animação de destruição antes de queue_free."""

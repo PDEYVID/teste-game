@@ -39,6 +39,16 @@ var _texture_cache: Dictionary = {}
 func get_player_texture() -> ImageTexture:
 	return _get_cached("player", _create_player_image)
 
+func get_player_mutation_texture(stage: int) -> ImageTexture:
+	var safe_stage: int = clamp(stage, 1, 3)
+	var key := "player_mut_%d" % safe_stage
+	if _texture_cache.has(key):
+		return _texture_cache[key]
+	var tex := _create_player_mutation_image(safe_stage)
+	_texture_cache[key] = tex
+	print("Sprite gerado: ", key, " - Tamanho: ", tex.get_width(), "x", tex.get_height())
+	return tex
+
 func get_enemy_texture() -> ImageTexture:
 	return _get_cached("enemy", _create_enemy_image)
 
@@ -379,3 +389,48 @@ func _create_explosion_image() -> ImageTexture:
 		[T,  T,  EXP_O,EXP_O,EXP_O,EXP_O,T,  T ],
 	]
 	return _image_from_pixels(pixels, 3)
+
+func _create_player_mutation_image(stage: int) -> ImageTexture:
+	var base_image: Image = get_player_texture().get_image()
+	var img: Image = base_image.duplicate()
+	var width := img.get_width()
+	var height := img.get_height()
+
+	for y in range(height):
+		for x in range(width):
+			var c: Color = img.get_pixel(x, y)
+			if c.a <= 0.01:
+				continue
+
+			match stage:
+				1:
+					if (x + y) % 5 == 0:
+						c = c.lerp(Color(1.0, 0.35, 0.85, c.a), 0.55)
+					else:
+						c = c.lerp(Color(0.95, 0.55, 1.0, c.a), 0.25)
+				2:
+					if (x * 2 + y) % 7 <= 1:
+						c = c.lerp(Color(0.4, 1.0, 0.95, c.a), 0.7)
+					else:
+						c = c.lerp(Color(1.0, 0.2, 0.9, c.a), 0.35)
+				_:
+					if (x + y) % 2 == 0:
+						c = c.lerp(Color(1.0, 0.15, 0.65, c.a), 0.72)
+					else:
+						c = c.lerp(Color(0.35, 1.0, 1.0, c.a), 0.72)
+
+			img.set_pixel(x, y, c)
+
+	if stage >= 2:
+		for i in range(6):
+			img.set_pixel(10 + i, 6 + int(i / 2), Color(1.0, 0.2, 0.25, 1.0))
+			img.set_pixel(width - 11 - i, 6 + int(i / 2), Color(1.0, 0.2, 0.25, 1.0))
+
+	if stage >= 3:
+		for y in range(height / 2 - 4, height / 2 + 4):
+			for x in range(width / 2 - 4, width / 2 + 4):
+				var cc: Color = img.get_pixel(x, y)
+				if cc.a > 0.01:
+					img.set_pixel(x, y, cc.lerp(Color(0.1, 1.0, 0.95, 1.0), 0.65))
+
+	return ImageTexture.create_from_image(img)
