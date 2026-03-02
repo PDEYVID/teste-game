@@ -88,12 +88,15 @@ func _apply_mutation_visuals() -> void:
 func update_stats() -> void:
 	"""Sincroniza os stats locais com o GameManager (chamado após upgrades)."""
 	max_hp = GameManager.player_stats["max_hp"]
-	speed = GameManager.player_stats["speed"]
+	speed = GameManager.get_effective_speed()
 	current_hp = min(current_hp, max_hp)
+	if weapon_system and weapon_system.has_method("update_cooldown"):
+		weapon_system.update_cooldown()
 	_apply_mutation_visuals()
 	emit_signal("hp_changed", current_hp, max_hp)
 
 func _physics_process(delta: float) -> void:
+	speed = GameManager.get_effective_speed()
 	_handle_dash_input()
 	_handle_dash(delta)
 	if not is_dashing:
@@ -233,7 +236,7 @@ func _handle_invincibility(delta: float) -> void:
 
 func take_damage(amount: int) -> void:
 	"""Aplica dano ao player, respeitando i-frames."""
-	if is_invincible:
+	if is_invincible or GameManager.is_temp_invincible():
 		return
 	
 	current_hp -= amount

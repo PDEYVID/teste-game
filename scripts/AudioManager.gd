@@ -3,6 +3,17 @@ extends Node
 const SAMPLE_RATE: int = 22050
 
 var sfx_volume_db: float = -8.0
+var music_volume_db: float = -18.0
+var _music_player: AudioStreamPlayer
+
+func _ready() -> void:
+	_music_player = AudioStreamPlayer.new()
+	_music_player.bus = "Master"
+	_music_player.volume_db = music_volume_db
+	_music_player.stream = _build_music_stream()
+	_music_player.finished.connect(_on_music_finished)
+	add_child(_music_player)
+	_music_player.play()
 
 func play_shoot() -> void:
 	_play_tone(760.0, 0.06, "square", -12.0, -200.0)
@@ -45,6 +56,11 @@ func play_boss_spawn() -> void:
 		{"freq": 100.0, "dur": 0.14, "wave": "saw", "vol": -5.0, "slide": -20.0}
 	], 0.05)
 
+func _on_music_finished() -> void:
+	if _music_player:
+		_music_player.stream = _build_music_stream()
+		_music_player.play()
+
 func _play_sequence(notes: Array, gap: float) -> void:
 	_play_sequence_async(notes, gap)
 
@@ -84,6 +100,44 @@ func _build_stream(freq: float, duration: float, wave: String, pitch_slide: floa
 		var sample: float = _sample_wave(phase, wave)
 		var env: float = _envelope(lerp_t)
 		sample *= env
+
+		var s16: int = int(clamp(sample, -1.0, 1.0) * 32767.0)
+		if s16 < 0:
+			s16 += 65536
+		data[i * 2] = s16 & 0xFF
+		data[i * 2 + 1] = (s16 >> 8) & 0xFF
+
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = SAMPLE_RATE
+	wav.stereo = false
+	wav.loop_mode = AudioStreamWAV.LOOP_DISABLED
+	wav.data = data
+	return wav
+
+func _build_music_stream() -> AudioStreamWAV:
+	var notes: Array = [
+		220.0, 261.63, 293.66, 329.63,
+		293.66, 261.63, 246.94, 196.0
+	]
+	var note_duration: float = 0.42
+	var total_samples: int = max(1, int(float(notes.size()) * note_duration * SAMPLE_RATE))
+	var data := PackedByteArray()
+	data.resize(total_samples * 2)
+
+	var global_phase: float = 0.0
+	for i in range(total_samples):
+		var t: float = float(i) / float(SAMPLE_RATE)
+		var note_index: int = clamp(int(t / note_duration), 0, notes.size() - 1)
+		var freq: float = float(notes[note_index])
+		global_phase += TAU * freq / float(SAMPLE_RATE)
+
+		var pad: float = sin(global_phase) * 0.45
+		var sub: float = sin(global_phase * 0.5) * 0.22
+		var arp: float = (1.0 if sin(global_phase * 2.0) >= 0.0 else -1.0) * 0.13
+		var note_pos: float = fposmod(t, note_duration) / note_duration
+		var env: float = min(1.0, note_pos / 0.1) * min(1.0, (1.0 - note_pos) / 0.2)
+		var sample: float = (pad + sub + arp) * env * 0.65
 
 		var s16: int = int(clamp(sample, -1.0, 1.0) * 32767.0)
 		if s16 < 0:

@@ -165,6 +165,22 @@ const UPGRADES: Array[Dictionary] = [
 		"color": Color(0.9, 0.45, 1.0),
 		"rarity": "lendário"
 	},
+	{
+		"id": "weapon_sword",
+		"name": "LÂMINA VIVA",
+		"description": "troca para estilo\nespada corpo-a-corpo",
+		"icon": "🗡",
+		"color": Color(0.92, 0.92, 1.0),
+		"rarity": "raro"
+	},
+	{
+		"id": "weapon_magic",
+		"name": "GRIMÓRIO ARCANO",
+		"description": "troca para estilo\nmagia explosiva",
+		"icon": "🔮",
+		"color": Color(0.8, 0.5, 1.0),
+		"rarity": "raro"
+	},
 ]
 
 var option_buttons: Array = []

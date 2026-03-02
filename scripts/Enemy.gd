@@ -1,6 +1,8 @@
 # Enemy.gd
 extends CharacterBody2D
 
+const POWERUP_SCENE = preload("res://scenes/PowerUpDrop.tscn")
+
 var max_hp: int = 30
 var current_hp: int = 30
 var speed: float = 80.0
@@ -147,9 +149,36 @@ func _flash_sprite(color: Color, scale_mult: float) -> void:
 func _die() -> void:
 	# Importante: Desativar colisão para não morrer duas vezes no mesmo frame
 	set_physics_process(false)
-	GameManager.add_xp(xp_reward)
+	GameManager.register_enemy_kill(xp_reward, enemy_kind)
 	PixelEffects.spawn_xp_particles(global_position)
+	PixelEffects.spawn_enemy_death_burst(global_position, enemy_kind)
+	_try_drop_powerup()
 	queue_free()
+
+func _try_drop_powerup() -> void:
+	var drop_chance: float = 0.08
+	if enemy_kind == "elite":
+		drop_chance = 0.22
+	elif enemy_kind == "warlock":
+		drop_chance = 0.28
+	elif enemy_kind == "boss":
+		drop_chance = 0.7
+
+	if randf() > drop_chance:
+		return
+
+	var drop = POWERUP_SCENE.instantiate()
+	get_tree().current_scene.add_child(drop)
+	drop.global_position = global_position
+
+	var ids := ["frenzy", "shield", "haste", "sword_mode", "magic_mode"]
+	var selected_id: String = ids[randi() % ids.size()]
+	var duration: float = 8.0
+	if selected_id == "sword_mode" or selected_id == "magic_mode":
+		duration = 10.0
+
+	if drop.has_method("setup"):
+		drop.setup(selected_id, duration)
 
 func _update_hp_bar() -> void:
 	if hp_bar_fill and hp_bar_bg:

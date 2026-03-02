@@ -22,6 +22,8 @@ SpriteGenerator="*res://scripts/SpriteGenerator.gd"
 GameManager="*res://scripts/GameManager.gd"
 PixelEffects="*res://scripts/PixelEffects.gd"
 AudioManager="*res://scripts/AudioManager.gd"
+MetaProgress="*res://scripts/MetaProgress.gd"
+AchievementSystem="*res://scripts/AchievementSystem.gd"
 
 [display]
 

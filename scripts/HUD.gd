@@ -8,6 +8,8 @@ var hp_label: Label
 var xp_bar: ProgressBar
 var level_label: Label
 var time_label: Label
+var gold_label: Label
+var meta_label: Label
 var combo_label: Label
 var stats_label: Label
 var _xp_glow_tween: Tween = null
@@ -116,6 +118,18 @@ func _create_hud() -> void:
 	time_label.add_theme_constant_override("shadow_offset_x", 2)
 	time_label.add_theme_constant_override("shadow_offset_y", 2)
 	right_vbox.add_child(time_label)
+
+	gold_label = Label.new()
+	gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	gold_label.add_theme_font_size_override("font_size", 22)
+	gold_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.35))
+	right_vbox.add_child(gold_label)
+
+	meta_label = Label.new()
+	meta_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	meta_label.add_theme_font_size_override("font_size", 16)
+	meta_label.add_theme_color_override("font_color", Color(0.75, 0.95, 1.0))
+	right_vbox.add_child(meta_label)
 	
 	# Combo com sombra e efeito
 	combo_label = Label.new()
@@ -194,6 +208,13 @@ func _create_stat_bar(label_text: String, color: Color) -> Control:
 func _process(_delta: float) -> void:
 	# Atualiza o tempo
 	time_label.text = "⏱ " + GameManager.get_survived_time_string()
+	if MetaProgress:
+		gold_label.text = "💰 %d (+%d)" % [MetaProgress.total_gold, MetaProgress.run_gold]
+		meta_label.text = "META L%d  🏆 %d/%d" % [
+			MetaProgress.meta_level,
+			AchievementSystem.get_completion_count() if AchievementSystem else 0,
+			AchievementSystem.get_total_count() if AchievementSystem else 0
+		]
 	
 	# Atualiza combo com animação
 	if GameManager.combo_count > 0:
@@ -297,6 +318,7 @@ func _update_stats_display() -> void:
 	text += "\n🔱 %d proj" % stats["projectile_count"]
 	text += "  ⚡ %.1fs" % stats["attack_cooldown"]
 	text += "  🚀 x%.2f" % float(stats.get("projectile_speed_mult", 1.0))
+	text += "\n🗡 arma: %s" % GameManager.get_current_weapon_mode()
 	if int(stats.get("pierce_count", 0)) > 0:
 		text += "\n🜂 perfura %d" % int(stats.get("pierce_count", 0))
 	if int(stats.get("radial_shot_count", 0)) > 0:
@@ -311,5 +333,11 @@ func _update_stats_display() -> void:
 		text += "  🧠 Q%d" % int(stats.get("quantum_brain", 0))
 	if int(stats.get("mutation_power", 0)) > 0:
 		text += "\n🧬 mutação %d" % int(stats.get("mutation_power", 0))
+
+	if not GameManager.active_powerups.is_empty():
+		var buff_texts: Array[String] = []
+		for key in GameManager.active_powerups.keys():
+			buff_texts.append("%s %.0fs" % [String(key), float(GameManager.active_powerups[key])])
+		text += "\n⚡ " + ", ".join(buff_texts)
 	
 	stats_label.text = text

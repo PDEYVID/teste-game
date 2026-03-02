@@ -50,6 +50,42 @@ func spawn_level_up_effect(position: Vector2) -> void:
 		var direction = Vector2(cos(angle), sin(angle))
 		_animate_particle(particle, direction * 120.0, Color(1.0, 0.9, 0.2))
 
+func spawn_enemy_death_burst(position: Vector2, enemy_kind: String = "normal") -> void:
+	var particles := CPUParticles2D.new()
+	particles.amount = 22
+	particles.one_shot = true
+	particles.emitting = false
+	particles.lifetime = 0.55
+	particles.explosiveness = 0.95
+	particles.spread = 180.0
+	particles.direction = Vector2.UP
+	particles.initial_velocity_min = 75.0
+	particles.initial_velocity_max = 145.0
+	particles.scale_amount_min = 0.7
+	particles.scale_amount_max = 1.4
+	particles.gravity = Vector2(0, 120)
+	particles.color = _death_burst_color(enemy_kind)
+	particles.z_index = 6
+	get_tree().current_scene.add_child(particles)
+	particles.global_position = position
+	particles.emitting = true
+	await get_tree().create_timer(0.8).timeout
+	if is_instance_valid(particles):
+		particles.queue_free()
+
+func _death_burst_color(enemy_kind: String) -> Color:
+	match enemy_kind:
+		"elite":
+			return Color(1.0, 0.25, 0.25, 0.95)
+		"warlock":
+			return Color(0.45, 0.95, 1.0, 0.95)
+		"boss":
+			return Color(1.0, 0.2, 1.0, 0.95)
+		"tank":
+			return Color(1.0, 0.55, 0.22, 0.95)
+		_:
+			return Color(0.35, 1.0, 0.35, 0.9)
+
 func _create_xp_particle() -> ColorRect:
 	"""Cria um pixel de XP (quadrado 4x4 verde)."""
 	var rect = ColorRect.new()

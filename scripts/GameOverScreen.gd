@@ -158,10 +158,16 @@ func _on_game_over(survived_time: float) -> void:
 	var stats_text = ""
 	stats_text += "%s\n\n" % rank
 	stats_text += "⭐ Nível: %d\n" % GameManager.current_level
+	if MetaProgress:
+		stats_text += "💰 Ouro total: %d\n" % MetaProgress.total_gold
+		stats_text += "🪙 Ouro da run: +%d\n" % MetaProgress.last_run_gold
+		stats_text += "📈 Meta nível: %d\n" % MetaProgress.meta_level
 	stats_text += "⚔ Dano: %.0f\n" % stats["damage"]
 	stats_text += "🔱 Projéteis: %d\n" % stats["projectile_count"]
 	stats_text += "🎯 Crítico: %.0f%%\n" % (stats["crit_chance"] * 100)
 	stats_text += "⚡ Cooldown: %.2fs\n" % stats["attack_cooldown"]
+	if AchievementSystem:
+		stats_text += "🏆 Conquistas: %d/%d\n" % [AchievementSystem.get_completion_count(), AchievementSystem.get_total_count()]
 	if stats["lifesteal"] > 0:
 		stats_text += "🩸 Lifesteal: %.0f%%" % (stats["lifesteal"] * 100)
 	

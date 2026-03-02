@@ -7,6 +7,8 @@ extends Node
 signal xp_changed(current_xp: int, xp_to_next: int)
 signal level_up(new_level: int)
 signal game_over(survived_time: float)
+signal enemy_killed(total_kills: int)
+signal temporary_powerup_changed(powerup_id: String, remaining: float)
 
 # --- Estado do Jogo ---
 var current_level: int = 1
@@ -14,6 +16,16 @@ var current_xp: int = 0
 var xp_to_next_level: int = 100
 var survived_time: float = 0.0
 var is_game_running: bool = false
+var total_kills: int = 0
+
+var active_powerups: Dictionary = {}
+var powerup_effects: Dictionary = {
+	"damage_mult": 1.0,
+	"cooldown_mult": 1.0,
+	"speed_mult": 1.0,
+	"invincible": false,
+	"weapon_override": ""
+}
 
 # --- Stats do Player (modificadas por upgrades) ---
 var player_stats: Dictionary = {
@@ -30,6 +42,7 @@ var player_stats: Dictionary = {
 	"chaos_shot_chance": 0.0,
 	"player_scale": 1.0,
 	"mutation_power": 0,
+	"weapon_mode": "projectile",
 	"void_orbitals": 0,
 	"quantum_brain": 0,
 	"crit_chance": 0.1,  # 10% de chance de crítico
@@ -65,6 +78,15 @@ func reset_game() -> void:
 	is_game_running = false
 	combo_count = 0
 	combo_timer = 0.0
+	total_kills = 0
+	active_powerups.clear()
+	powerup_effects = {
+		"damage_mult": 1.0,
+		"cooldown_mult": 1.0,
+		"speed_mult": 1.0,
+		"invincible": false,
+		"weapon_override": ""
+	}
 	player_stats = {
 		"max_hp": 100,
 		"speed": 200.0,
@@ -79,6 +101,7 @@ func reset_game() -> void:
 		"chaos_shot_chance": 0.0,
 		"player_scale": 1.0,
 		"mutation_power": 0,
+		"weapon_mode": "projectile",
 		"void_orbitals": 0,
 		"quantum_brain": 0,
 		"crit_chance": 0.1,
@@ -86,14 +109,39 @@ func reset_game() -> void:
 		"lifesteal": 0.0,
 	}
 
+	if MetaProgress:
+		MetaProgress.start_run()
+		var bonus: Dictionary = MetaProgress.get_meta_bonuses()
+		player_stats["max_hp"] += int(bonus.get("max_hp", 0))
+		player_stats["damage"] += float(bonus.get("damage", 0.0))
+		player_stats["speed"] += float(bonus.get("speed", 0.0))
+		player_stats["attack_cooldown"] = max(0.22, player_stats["attack_cooldown"] - float(bonus.get("attack_cooldown_reduction", 0.0)))
+
+	if AchievementSystem:
+		AchievementSystem.start_run()
+
 func _process(delta: float) -> void:
 	if is_game_running:
 		survived_time += delta
+		_process_powerups(delta)
 		# Atualiza timer de combo
 		if combo_count > 0:
 			combo_timer -= delta
 			if combo_timer <= 0:
 				combo_count = 0
+
+func _process_powerups(delta: float) -> void:
+	if active_powerups.is_empty():
+		return
+	var expired: Array[String] = []
+	for id in active_powerups.keys():
+		active_powerups[id] = max(0.0, float(active_powerups[id]) - delta)
+		emit_signal("temporary_powerup_changed", id, float(active_powerups[id]))
+		if float(active_powerups[id]) <= 0.0:
+			expired.append(id)
+	for id in expired:
+		active_powerups.erase(id)
+	_recalculate_powerup_effects()
 
 func add_xp(amount: int) -> void:
 	"""Adiciona XP e verifica se houve level up."""
@@ -130,9 +178,98 @@ func _level_up() -> void:
 func trigger_game_over() -> void:
 	"""Dispara o evento de game over."""
 	is_game_running = false
+	if MetaProgress:
+		MetaProgress.finalize_run()
+	if AchievementSystem:
+		AchievementSystem.on_game_over(survived_time)
 	if AudioManager:
 		AudioManager.play_game_over()
 	emit_signal("game_over", survived_time)
+
+func register_enemy_kill(xp_reward: int, enemy_kind: String = "normal") -> void:
+	total_kills += 1
+	emit_signal("enemy_killed", total_kills)
+	add_xp(xp_reward)
+
+	if MetaProgress:
+		var gold_gain: int = 4
+		match enemy_kind:
+			"fast":
+				gold_gain = 5
+			"tank":
+				gold_gain = 7
+			"elite":
+				gold_gain = 14
+			"warlock":
+				gold_gain = 16
+			"boss":
+				gold_gain = 40
+		MetaProgress.add_run_gold(gold_gain)
+
+	if AchievementSystem:
+		AchievementSystem.on_enemy_killed(total_kills, enemy_kind)
+
+func apply_temporary_powerup(powerup_id: String, duration: float) -> void:
+	if duration <= 0.0:
+		return
+	active_powerups[powerup_id] = max(duration, float(active_powerups.get(powerup_id, 0.0)))
+	_recalculate_powerup_effects()
+	emit_signal("temporary_powerup_changed", powerup_id, float(active_powerups[powerup_id]))
+
+	var notifications = get_tree().get_first_node_in_group("notifications")
+	if notifications and notifications.has_method("show_notification"):
+		var title := "POWER-UP"
+		match powerup_id:
+			"frenzy":
+				title = "FRENESI DE ATAQUE"
+			"shield":
+				title = "ESCUDO ARCANO"
+			"haste":
+				title = "VELOCIDADE SOMBRIA"
+			"sword_mode":
+				title = "ESPADA ETÉREA"
+			"magic_mode":
+				title = "TEMPESTADE MÁGICA"
+		notifications.show_notification(title, "⚡", Color(0.55, 0.95, 1.0), 1.8)
+
+func _recalculate_powerup_effects() -> void:
+	powerup_effects = {
+		"damage_mult": 1.0,
+		"cooldown_mult": 1.0,
+		"speed_mult": 1.0,
+		"invincible": false,
+		"weapon_override": ""
+	}
+
+	if active_powerups.has("frenzy"):
+		powerup_effects["damage_mult"] = 1.45
+		powerup_effects["cooldown_mult"] = 0.6
+	if active_powerups.has("haste"):
+		powerup_effects["speed_mult"] = 1.5
+	if active_powerups.has("shield"):
+		powerup_effects["invincible"] = true
+	if active_powerups.has("sword_mode"):
+		powerup_effects["weapon_override"] = "sword"
+	elif active_powerups.has("magic_mode"):
+		powerup_effects["weapon_override"] = "magic"
+
+func get_effective_damage() -> float:
+	return float(player_stats["damage"]) * float(powerup_effects.get("damage_mult", 1.0))
+
+func get_effective_cooldown() -> float:
+	return max(0.12, float(player_stats["attack_cooldown"]) * float(powerup_effects.get("cooldown_mult", 1.0)))
+
+func get_effective_speed() -> float:
+	return float(player_stats["speed"]) * float(powerup_effects.get("speed_mult", 1.0))
+
+func is_temp_invincible() -> bool:
+	return bool(powerup_effects.get("invincible", false))
+
+func get_current_weapon_mode() -> String:
+	var override_mode: String = String(powerup_effects.get("weapon_override", ""))
+	if not override_mode.is_empty():
+		return override_mode
+	return String(player_stats.get("weapon_mode", "projectile"))
 
 func apply_upgrade(upgrade_id: String) -> void:
 	"""Aplica um upgrade ao player stats."""
@@ -198,6 +335,10 @@ func apply_upgrade(upgrade_id: String) -> void:
 			player_stats["attack_cooldown"] = max(0.2, player_stats["attack_cooldown"] - 0.1)
 			player_stats["crit_explosion_radius"] += 20.0
 			player_stats["mutation_power"] += 1
+		"weapon_sword":
+			player_stats["weapon_mode"] = "sword"
+		"weapon_magic":
+			player_stats["weapon_mode"] = "magic"
 	
 	# Notifica o player para atualizar seus stats
 	if player_ref and player_ref.has_method("update_stats"):
