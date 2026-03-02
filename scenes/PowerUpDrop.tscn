@@ -1,17 +1,16 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://c5xlpiwcaf6rm"]
 
-[ext_resource type="Script" path="res://scripts/PowerUpDrop.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dtjmad0tbg7a1" path="res://scripts/PowerUpDrop.gd" id="1_script"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
 radius = 18.0
 
-[node name="PowerUpDrop" type="Area2D"]
+[node name="PowerUpDrop" type="Area2D" unique_id=1948571041]
 collision_layer = 0
-collision_mask = 1
 script = ExtResource("1_script")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1840318459]
 scale = Vector2(1.15, 1.15)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=299008742]
 shape = SubResource("CircleShape2D_pickup")

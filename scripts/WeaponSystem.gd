@@ -141,7 +141,7 @@ func _magic_attack(enemies: Array) -> void:
 		var center_enemy = enemies[0]
 		if is_instance_valid(center_enemy):
 			for j in range(3):
-				var arc_dir := (center_enemy.global_position - global_position).normalized().rotated(randf_range(-0.6, 0.6))
+				var arc_dir: Vector2 = (center_enemy.global_position - global_position).normalized().rotated(randf_range(-0.6, 0.6))
 				_spawn_projectile(arc_dir)
 
 func update_cooldown() -> void:
